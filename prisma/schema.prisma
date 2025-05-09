@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  Admin
+  TradingMaestro
+  SupportHero
+  SecuritySentinel
+  Trader
+  Affiliate
+  Investor
+  Developer
+  Marketer
+  Auditor
+  Client
+  Broker
+}
+
+model User {
+  id                   String   @id @default(uuid())
+  name                 String?
+  email                String   @unique
+  password             String?
+  type                 UserType
+  token                String?
+  activateAccountToken String?
+  forgotPasswordToken  String?
+  isActive             Boolean  @default(false)
+  isDeleted            Boolean  @default(false)
+  twoFATempSecret      String?
+  twoFASecret          String?
+  twoFAEnabled         Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  creator   User?   @relation("UsersCreated", fields: [creatorId], references: [id])
+  creatorId String?
+
+  usersCreated User[] @relation("UsersCreated")
+
+  @@index([token])
+  @@index([name, type])
+  @@index([isDeleted, type])
+}
+
+// npx prisma migrate dev --name name_that_you_want

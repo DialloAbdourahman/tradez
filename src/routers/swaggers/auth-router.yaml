@@ -1,0 +1,1558 @@
+/api/auth/v1/signup:
+  post:
+    summary: Create an account
+    tags:
+      - Authentication module
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The user's fullname
+                example: "John Doe"
+              email:
+                type: string
+                description: The user's email
+                example: "john@doe.com"
+              password:
+                type: string
+                description: The password of the user.
+                example: "securepassword"
+    responses:
+      201:
+        description: Account successfully created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example:
+                    - "SUCCESS"
+      400:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "VALIDATION_REQUEST_ERROR | ACCOUNT_DELETED | EMAIL_IN_USE | ACCOUNT_NOT_ACTIVATED"
+                message:
+                  type: string
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/activate:
+  post:
+    summary: Activate account
+    tags:
+      - Authentication module
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: The jwt code
+                example: "eyjdhfakhskdj..."
+    responses:
+      200:
+        description: Account activated successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+      400:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "VALIDATION_REQUEST_ERROR | TOKEN_DOES_NOT_EXIST"
+                message:
+                  type: string
+      404:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NOT_FOUND"
+                message:
+                  type: string
+                  example: "User not found"
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/signin:
+  post:
+    summary: Login to account
+    tags:
+      - Authentication module
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                description: The user's email
+                example: "john@doe.com"
+              password:
+                type: string
+                description: The password of the user.
+                example: "securepassword"
+    responses:
+      200:
+        description: Signed in successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                data:
+                  type: object
+            examples:
+              NormalResponse:
+                summary: Normal response
+                value:
+                  code: "SUCCESS"
+                  data:
+                    id: "user-123"
+                    name: "John Doe"
+                    email: "john@doe.com"
+                    type: "Admin"
+                    createdAt: "2025-02-19T16:37:30.081Z"
+                    updatedAt: "2025-02-19T16:37:30.081Z"
+                    accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              NormalResponseToRequestTwoFactorCode:
+                summary: Response with two factor enabled already
+                value:
+                  code: "SUCCESS"
+                  data:
+                    id: "user-123"
+                    name: "John Doe"
+                    email: "john@doe.com"
+                    type: "Admin"
+                    createdAt: "2025-02-19T16:37:30.081Z"
+                    updatedAt: "2025-02-19T16:37:30.081Z"
+                    twoFAEnabled: true
+              NormalResponseToRequestTwoFactorCodeAndQrCode:
+                summary: Response with two factor not enabled
+                value:
+                  code: "SUCCESS"
+                  data:
+                    id: "user-123"
+                    name: "John Doe"
+                    email: "john@doe.com"
+                    type: "Admin"
+                    createdAt: "2025-02-19T16:37:30.081Z"
+                    updatedAt: "2025-02-19T16:37:30.081Z"
+                    twoFAEnabled: true
+                    qrCode: "asdfasdfasdf"
+      400:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "VALIDATION_REQUEST_ERROR | ACCOUNT_DELETED | UNABLE_TO_LOGIN | ACCOUNT_NOT_ACTIVATED | NO_PASSWORD_TO_ACCOUNT"
+                message:
+                  type: string
+
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/set-2fa:
+  post:
+    summary: Set two factor auth
+    tags:
+      - Authentication module
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The user id.
+                example: "securepassword"
+              code:
+                type: string
+                description: The user's code
+                example: "eyjdhfakhskdj..."
+    responses:
+      200:
+        description: Signed in successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: "907b4e94-fc20-4ff2-9c3e-ee4af7ace00c"
+                    name:
+                      type: string
+                      example: "John Doe"
+                    email:
+                      type: string
+                      example: "john@doe.com"
+                    type:
+                      type: string
+                      example: "Admin"
+                    accessToken:
+                      type: string
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjkwN2I0ZTk0LWZjMjAtNGZmMi05YzNlLWVlNGFmN2FjZTAwYyIsImVtYWlsIjoiZGlhbGxpYWJkb3VyYWhtYW43OEBnbWFpbC5jb20iLCJ0eXBlIjoiQWRtaW4iLCJpYXQiOjE3MzQ0NzEwNzAsImV4cCI6MTczNDU1NzQ3MH0.AyXQyjEIf8GqUv5dtJwMrPhkvy0uKJUdZpS7dxGasW0"
+                    refreshToken:
+                      type: string
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjkwN2I0ZTk0LWZjMjAtNGZmMi05YzNlLWVlNGFmN2FjZTAwYyIsImlhdCI6MTczNDQ3MTA3MCwiZXhwIjoxNzM1MDc1ODcwfQ.9W54La-NAMTAiKA7aC3FTaX5AmVB6p5DcBGQaCXcrDI"
+                    createdAt:
+                      type: string
+                      description: The created at date.
+                      example: "2025-02-24T11:49:09.298Z"
+                    updatedAt:
+                      type: string
+                      description: The updated at date.
+                      example: "2025-02-24T11:49:09.298Z"
+      400:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "VALIDATION_REQUEST_ERROR | ACCOUNT_DELETED | UNABLE_TO_LOGIN | ACCOUNT_NOT_ACTIVATED | NO_PASSWORD_TO_ACCOUNT | TWO_FACTOR_ENABLED_ALREADY | WRONG_CODE_OR_EXPIRED_CODE"
+                message:
+                  type: string
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/verify-2fa:
+  post:
+    summary: Verify two factor auth
+    tags:
+      - Authentication module
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The user id.
+                example: "securepassword"
+              code:
+                type: string
+                description: The user's code
+                example: "eyjdhfakhskdj..."
+    responses:
+      200:
+        description: Signed in successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: "907b4e94-fc20-4ff2-9c3e-ee4af7ace00c"
+                    name:
+                      type: string
+                      example: "John Doe"
+                    email:
+                      type: string
+                      example: "john@doe.com"
+                    type:
+                      type: string
+                      example: "Admin"
+                    accessToken:
+                      type: string
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjkwN2I0ZTk0LWZjMjAtNGZmMi05YzNlLWVlNGFmN2FjZTAwYyIsImVtYWlsIjoiZGlhbGxpYWJkb3VyYWhtYW43OEBnbWFpbC5jb20iLCJ0eXBlIjoiQWRtaW4iLCJpYXQiOjE3MzQ0NzEwNzAsImV4cCI6MTczNDU1NzQ3MH0.AyXQyjEIf8GqUv5dtJwMrPhkvy0uKJUdZpS7dxGasW0"
+                    refreshToken:
+                      type: string
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjkwN2I0ZTk0LWZjMjAtNGZmMi05YzNlLWVlNGFmN2FjZTAwYyIsImlhdCI6MTczNDQ3MTA3MCwiZXhwIjoxNzM1MDc1ODcwfQ.9W54La-NAMTAiKA7aC3FTaX5AmVB6p5DcBGQaCXcrDI"
+                    createdAt:
+                      type: string
+                      description: The created at date.
+                      example: "2025-02-24T11:49:09.298Z"
+                    updatedAt:
+                      type: string
+                      description: The updated at date.
+                      example: "2025-02-24T11:49:09.298Z"
+      400:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "VALIDATION_REQUEST_ERROR | ACCOUNT_DELETED | UNABLE_TO_LOGIN | ACCOUNT_NOT_ACTIVATED | NO_PASSWORD_TO_ACCOUNT | TWO_FACTOR_NOT_YET_ENABLED | WRONG_CODE_OR_EXPIRED_CODE"
+                message:
+                  type: string
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/secured-super-user:
+  post:
+    summary: Admin creates a secured super user and set his two FA temp secret.
+    tags:
+      - Authentication module
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer token (e.g., `Bearer {access_token}`)
+        schema:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The user's fullname
+                example: "John Doe"
+              email:
+                type: string
+                description: The user's email
+                example: "john@doe.com"
+              password:
+                type: string
+                description: The password of the user.
+                example: "securepassword"
+              type:
+                type: string
+                description: The type of the super user.
+                example: "Admin"
+
+    responses:
+      201:
+        description: Signed in successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: "907b4e94-fc20-4ff2-9c3e-ee4af7ace00c"
+                    name:
+                      type: string
+                      example: "John Doe"
+                    email:
+                      type: string
+                      example: "john@doe.com"
+                    type:
+                      type: string
+                      example: "Admin"
+                    createdAt:
+                      type: string
+                      example: "2025-02-24T11:49:09.298Z"
+                    updatedAt:
+                      type: string
+                      example: "2025-02-24T11:49:09.298Z"
+                    isActive:
+                      type: boolean
+                      example: true
+                    isDeleted:
+                      type: boolean
+                      example: true
+                    creator:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: "02c630c6-7615-43a2-8d33-c3da79510e56"
+                        name:
+                          type: string
+                          example: "Test"
+                        email:
+                          type: string
+                          example: "Test@gmail.com"
+
+      400:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "VALIDATION_REQUEST_ERROR | ACCOUNT_DELETED | EMAIL_IN_USE | ACCOUNT_NOT_ACTIVATED | NOT_ALLOWED_USER_TYPE | MAX_USERS_IN_SYSTEM"
+                message:
+                  type: string
+      401:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NO_ACCESS_TOKEN | NOT_FOUND | ACCOUNT_NOT_ACTIVATED | ACCOUNT_DELETED | ACCESS_TOKEN_EXPIRED | CANNOT_DECODE_TOKEN | NOT_ALLOWED"
+                message:
+                  type: string
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/logout:
+  post:
+    summary: Logout
+    tags:
+      - Authentication module
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer token (e.g., `Bearer {access_token}`)
+        schema:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    responses:
+      200:
+        description: Email sent successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+
+      401:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NO_ACCESS_TOKEN | NOT_FOUND | ACCOUNT_NOT_ACTIVATED | ACCOUNT_DELETED | ACCESS_TOKEN_EXPIRED | CANNOT_DECODE_TOKEN | NOT_ALLOWED"
+                message:
+                  type: string
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/token:
+  post:
+    summary: Refresh token
+    tags:
+      - Authentication module
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer token (e.g., `Bearer {refresh_token}`)
+        schema:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    responses:
+      200:
+        description: Email sent successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: "907b4e94-fc20-4ff2-9c3e-ee4af7ace00c"
+                    name:
+                      type: string
+                      example: "John Doe"
+                    email:
+                      type: string
+                      example: "john@doe.com"
+                    type:
+                      type: string
+                      example: "Admin"
+                    accessToken:
+                      type: string
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjkwN2I0ZTk0LWZjMjAtNGZmMi05YzNlLWVlNGFmN2FjZTAwYyIsImVtYWlsIjoiZGlhbGxpYWJkb3VyYWhtYW43OEBnbWFpbC5jb20iLCJ0eXBlIjoiQWRtaW4iLCJpYXQiOjE3MzQ0NzEwNzAsImV4cCI6MTczNDU1NzQ3MH0.AyXQyjEIf8GqUv5dtJwMrPhkvy0uKJUdZpS7dxGasW0"
+                    refreshToken:
+                      type: string
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjkwN2I0ZTk0LWZjMjAtNGZmMi05YzNlLWVlNGFmN2FjZTAwYyIsImlhdCI6MTczNDQ3MTA3MCwiZXhwIjoxNzM1MDc1ODcwfQ.9W54La-NAMTAiKA7aC3FTaX5AmVB6p5DcBGQaCXcrDI"
+                    createdAt:
+                      type: string
+                      description: The created at date.
+                      example: "2025-02-24T11:49:09.298Z"
+                    updatedAt:
+                      type: string
+                      description: The updated at date.
+                      example: "2025-02-24T11:49:09.298Z"
+
+      401:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NO_REFRESH_TOKEN | REUSE_DETECTION | CANNOT_DECODE_TOKEN | REFRESH_TOKEN_EXPIRED | UNAUTHORIZED | ACCOUNT_DELETED | ACCOUNT_NOT_ACTIVATED"
+                message:
+                  type: string
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/forgot-password:
+  post:
+    summary: Forgot password
+    tags:
+      - Authentication module
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                description: The user's email
+                example: "john@doe.com"
+    responses:
+      200:
+        description: Email sent successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+
+      400:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "VALIDATION_REQUEST_ERROR | ACCOUNT_DELETED | EMAIL_IN_USE | ACCOUNT_NOT_ACTIVATED"
+                message:
+                  type: string
+      404:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NOT_FOUND"
+                message:
+                  type: string
+                  example: "User not found"
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/restore/{id}:
+  post:
+    summary: Restore a deleted account
+    tags:
+      - Authentication module
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer token (e.g., `Bearer {access_token}`)
+        schema:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    responses:
+      200:
+        description: Email sent successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+
+      400:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "MAX_USERS_IN_SYSTEM"
+                message:
+                  type: string
+      401:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NO_ACCESS_TOKEN | NOT_FOUND | ACCOUNT_NOT_ACTIVATED | ACCOUNT_DELETED | ACCESS_TOKEN_EXPIRED | CANNOT_DECODE_TOKEN | NOT_ALLOWED"
+                message:
+                  type: string
+      404:
+        description: User to restore not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NOT_FOUND"
+                message:
+                  type: string
+                  example: "User not found"
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/deactivate-account/{id}:
+  post:
+    summary: Deactivate account
+    tags:
+      - Authentication module
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer token (e.g., `Bearer {access_token}`)
+        schema:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    responses:
+      200:
+        description: Email sent successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+
+      400:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "VALIDATION_REQUEST_ERROR | CANNOT_DEACTIVATE_YOURSELF"
+                message:
+                  type: string
+      401:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NO_ACCESS_TOKEN | NOT_FOUND | ACCOUNT_NOT_ACTIVATED | ACCOUNT_DELETED | ACCESS_TOKEN_EXPIRED | CANNOT_DECODE_TOKEN | NOT_ALLOWED"
+                message:
+                  type: string
+      404:
+        description: User to deactivate not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NOT_FOUND"
+                message:
+                  type: string
+                  example: "User not found"
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/oauth-google:
+  post:
+    summary: Google auth to account
+    tags:
+      - Authentication module
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: The code generated by google screen on the frontend
+                example: "4/0AanRRrvf5Sn5L_bXmqgrGaQlE-b0i8WpbSxd3_4_j_tFzAGWMj0XZzRCJ9PItP4J5tlYbg"
+    responses:
+      200:
+        description: Signed in successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: "907b4e94-fc20-4ff2-9c3e-ee4af7ace00c"
+                    name:
+                      type: string
+                      example: "John Doe"
+                    email:
+                      type: string
+                      example: "john@doe.com"
+                    type:
+                      type: string
+                      example: "Admin"
+                    accessToken:
+                      type: string
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjkwN2I0ZTk0LWZjMjAtNGZmMi05YzNlLWVlNGFmN2FjZTAwYyIsImVtYWlsIjoiZGlhbGxpYWJkb3VyYWhtYW43OEBnbWFpbC5jb20iLCJ0eXBlIjoiQWRtaW4iLCJpYXQiOjE3MzQ0NzEwNzAsImV4cCI6MTczNDU1NzQ3MH0.AyXQyjEIf8GqUv5dtJwMrPhkvy0uKJUdZpS7dxGasW0"
+                    refreshToken:
+                      type: string
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjkwN2I0ZTk0LWZjMjAtNGZmMi05YzNlLWVlNGFmN2FjZTAwYyIsImlhdCI6MTczNDQ3MTA3MCwiZXhwIjoxNzM1MDc1ODcwfQ.9W54La-NAMTAiKA7aC3FTaX5AmVB6p5DcBGQaCXcrDI"
+                    createdAt:
+                      type: string
+                      description: The created at date.
+                      example: "2025-02-24T11:49:09.298Z"
+                    updatedAt:
+                      type: string
+                      description: The updated at date.
+                      example: "2025-02-24T11:49:09.298Z"
+      400:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "VALIDATION_REQUEST_ERROR | ACCOUNT_DELETED | ACCOUNT_NOT_ACTIVATED | NON_SUPER_USERS_ONLY"
+                message:
+                  type: string
+      500:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "GOOGLE_AUTH_ERROR | UNEXPECTED_ERROR"
+                message:
+                  type: string
+
+/api/auth/v1/super-user-activate-account/{id}:
+  post:
+    summary: Super user activates account of a user
+    tags:
+      - Authentication module
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer token (e.g., `Bearer {access_token}`)
+        schema:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    responses:
+      200:
+        description: Email sent successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+
+      400:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "VALIDATION_REQUEST_ERROR"
+                message:
+                  type: string
+      401:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NO_ACCESS_TOKEN | NOT_FOUND | ACCOUNT_NOT_ACTIVATED | ACCOUNT_DELETED | ACCESS_TOKEN_EXPIRED | CANNOT_DECODE_TOKEN | NOT_ALLOWED"
+                message:
+                  type: string
+      404:
+        description: User to activate not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NOT_FOUND"
+                message:
+                  type: string
+                  example: "User not found"
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/profile:
+  get:
+    summary: Get profile information
+    tags:
+      - Authentication module
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer token (e.g., `Bearer {access_token}`)
+        schema:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    responses:
+      200:
+        description: Signed in successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: "907b4e94-fc20-4ff2-9c3e-ee4af7ace00c"
+                    name:
+                      type: string
+                      example: "John Doe"
+                    email:
+                      type: string
+                      example: "john@doe.com"
+                    type:
+                      type: string
+                      example: "Admin"
+                    createdAt:
+                      type: string
+                      description: The created at date.
+                      example: "2025-02-24T11:49:09.298Z"
+                    updatedAt:
+                      type: string
+                      description: The updated at date.
+                      example: "2025-02-24T11:49:09.298Z"
+      401:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NO_ACCESS_TOKEN | NOT_FOUND | ACCOUNT_NOT_ACTIVATED | ACCOUNT_DELETED | ACCESS_TOKEN_EXPIRED | CANNOT_DECODE_TOKEN | NOT_ALLOWED"
+                message:
+                  type: string
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/has-password:
+  get:
+    summary: Used to check whether a user has a password or not
+    tags:
+      - Authentication module
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer token (e.g., `Bearer {access_token}`)
+        schema:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    responses:
+      200:
+        description: Has password info
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+                data:
+                  type: object
+                  properties:
+                    hasPassword:
+                      type: boolean
+                      example: true
+      401:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NO_ACCESS_TOKEN | NOT_FOUND | ACCOUNT_NOT_ACTIVATED | ACCOUNT_DELETED | ACCESS_TOKEN_EXPIRED | CANNOT_DECODE_TOKEN | NOT_ALLOWED"
+                message:
+                  type: string
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/update:
+  patch:
+    summary: Update account
+    tags:
+      - Authentication module
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer token (e.g., `Bearer {access_token}`)
+        schema:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The user's fullname
+                example: "John Doe"
+    responses:
+      200:
+        description: Signed in successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: "907b4e94-fc20-4ff2-9c3e-ee4af7ace00c"
+                    name:
+                      type: string
+                      example: "John Doe"
+                    email:
+                      type: string
+                      example: "john@doe.com"
+                    type:
+                      type: string
+                      example: "Admin"
+                    createdAt:
+                      type: string
+                      description: The created at date.
+                      example: "2025-02-24T11:49:09.298Z"
+                    updatedAt:
+                      type: string
+                      description: The updated at date.
+                      example: "2025-02-24T11:49:09.298Z"
+      400:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "VALIDATION_REQUEST_ERROR"
+                message:
+                  type: string
+      401:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NO_ACCESS_TOKEN | NOT_FOUND | ACCOUNT_NOT_ACTIVATED | ACCOUNT_DELETED | ACCESS_TOKEN_EXPIRED | CANNOT_DECODE_TOKEN | NOT_ALLOWED"
+                message:
+                  type: string
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/add-password:
+  patch:
+    summary: Add a password to an account
+    tags:
+      - Authentication module
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer token (e.g., `Bearer {access_token}`)
+        schema:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              newPassword:
+                type: string
+                description: The new password
+                example: "securepassword"
+              confirmNewPassword:
+                type: string
+                description: Confirm the new password
+                example: "securepassword"
+    responses:
+      200:
+        description: Password added successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+      400:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "VALIDATION_REQUEST_ERROR | PASSWORDS_MUST_BE_THE_SAME | PASSWORD_EXIST_ALREADY"
+                message:
+                  type: string
+      401:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NO_ACCESS_TOKEN | NOT_FOUND | ACCOUNT_NOT_ACTIVATED | ACCOUNT_DELETED | ACCESS_TOKEN_EXPIRED | CANNOT_DECODE_TOKEN | NOT_ALLOWED"
+                message:
+                  type: string
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/reset-password:
+  patch:
+    summary: Reset password
+    tags:
+      - Authentication module
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                description: The jwt code
+                example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              password:
+                type: string
+                description: The new password
+                example: "securepassword"
+    responses:
+      200:
+        description: Password reset successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+      400:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "VALIDATION_REQUEST_ERROR | ACCOUNT_DELETED | ACCOUNT_NOT_ACTIVATED | TOKEN_DOES_NOT_MATCH"
+                message:
+                  type: string
+      404:
+        description: User not found.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NOT_FOUND"
+                message:
+                  type: string
+                  example: "User not found"
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/update-password:
+  patch:
+    summary: Update password
+    tags:
+      - Authentication module
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer token (e.g., `Bearer {access_token}`)
+        schema:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              oldPassword:
+                type: string
+                description: The old password
+                example: "oldPassword"
+              newPassword:
+                type: string
+                description: The new password
+                example: "securepassword"
+              confirmNewPassword:
+                type: string
+                description: Confirm the new password
+                example: "securepassword"
+    responses:
+      200:
+        description: Password updated successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+      400:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "VALIDATION_REQUEST_ERROR | NEW_PASSWORD_DOES_NOT_MATCH_OLD_PASSWORD | PASSWORDS_MUST_BE_THE_SAME | NO_PASSWORD_TO_ACCOUNT"
+                message:
+                  type: string
+      401:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NO_ACCESS_TOKEN | NOT_FOUND | ACCOUNT_NOT_ACTIVATED | ACCOUNT_DELETED | ACCESS_TOKEN_EXPIRED | CANNOT_DECODE_TOKEN | NOT_ALLOWED"
+                message:
+                  type: string
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"
+
+/api/auth/v1/delete/{id}:
+  delete:
+    summary: Delete account
+    tags:
+      - Authentication module
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer token (e.g., `Bearer {access_token}`)
+        schema:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    responses:
+      200:
+        description: Account deleted successfully.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "SUCCESS"
+      400:
+        description: "Provide an ID"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "VALIDATION_REQUEST_ERROR | CANNOT_DELETE_YOURSELF"
+                message:
+                  type: string
+      401:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NO_ACCESS_TOKEN | NOT_FOUND | ACCOUNT_NOT_ACTIVATED | ACCOUNT_DELETED | ACCESS_TOKEN_EXPIRED | CANNOT_DECODE_TOKEN | NOT_ALLOWED"
+                message:
+                  type: string
+      404:
+        description: Various error scenarios, check yaml files.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "NOT_FOUND"
+                message:
+                  type: string
+                  example: "User not found"
+      500:
+        description: Unexpected server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: "UNEXPECTED_ERROR"
+                message:
+                  type: string
+                  example: "Something went wrong"

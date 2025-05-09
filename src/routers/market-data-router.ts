@@ -1,0 +1,1 @@
+// Initialize the tradier as per the documentation and how prisma was initialized. 
